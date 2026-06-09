@@ -1,0 +1,26 @@
+/* Design tokens — fonte única de cores, fontes e medidas.
+   Mudas o visual da app inteira aqui. */
+:root{
+  --bg:#0E1820;
+  --panel:#15222E;
+  --panel-2:#1C2E3C;
+  --line:#283D4E;
+  --ink:#EAF1F5;
+  --muted:#8DA2B0;
+
+  --amber:#F4A93C;
+  --amber-soft:rgba(244,169,60,.16);
+  --teal:#36C7D0;
+  --teal-soft:rgba(54,199,208,.15);
+
+  /* cor de destaque ativa (muda com o modo raio/tempo via JS) */
+  --accent:var(--amber);
+  --accent-soft:var(--amber-soft);
+
+  --display:'Space Grotesk',system-ui,sans-serif;
+  --ui:'Inter',system-ui,sans-serif;
+  --mono:'Space Mono',ui-monospace,monospace;
+
+  --radius:14px;
+  --gap:14px;
+}

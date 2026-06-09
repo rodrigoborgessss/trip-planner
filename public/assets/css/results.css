@@ -1,0 +1,46 @@
+/* Página de resultados: grelha de cartões de destino. */
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px 64px}
+
+.bar{display:flex;align-items:center;gap:14px;padding:16px 20px;max-width:1080px;margin:0 auto;flex-wrap:wrap}
+.bar a{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.bar a:hover{color:var(--ink)}
+.bar h1{font-family:var(--display);font-size:24px;margin:0}
+.bar .count{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.bar .sort{margin-left:auto;display:flex;gap:4px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:3px}
+.bar .sort button{border:0;background:transparent;color:var(--muted);font-size:12.5px;padding:7px 12px;border-radius:7px}
+.bar .sort button.on{background:var(--accent);color:#0E1820;font-weight:600}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.dcard{
+  background:var(--panel);border:1px solid var(--line);border-radius:15px;overflow:hidden;cursor:pointer;
+  transition:border-color .15s,transform .08s;display:flex;flex-direction:column;
+}
+.dcard:hover{border-color:var(--accent);transform:translateY(-2px)}
+.dcard .banner{
+  height:120px;position:relative;background-size:cover;background-position:center;
+  background-image:radial-gradient(140px 90px at 80% 0%, var(--accent-soft), transparent 60%),linear-gradient(160deg,var(--panel-2),var(--panel));
+}
+.dcard .banner.has-photo::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,24,32,.05),rgba(14,24,32,.55))}
+.dcard .banner .iata{position:absolute;top:10px;left:12px;z-index:2;font-family:var(--mono);font-size:11px;color:var(--ink);background:rgba(14,24,32,.65);padding:3px 7px;border-radius:6px}
+.dcard .banner .flag-badge{position:absolute;top:8px;right:10px;z-index:2;font-size:20px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
+.dcard .body{padding:14px 16px 16px}
+.dcard h3{margin:0 0 1px;font-size:17px;font-family:var(--display)}
+.dcard .country{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.dcard .metrics{display:flex;gap:14px;margin-top:12px}
+.dcard .metric small{display:block;font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.dcard .metric b{font-family:var(--mono);font-size:14px}
+.dcard .go{margin-top:13px;font-size:12.5px;font-weight:600;color:var(--accent)}
+
+.state{font-family:var(--mono);font-size:14px;color:var(--muted);padding:48px;text-align:center}
+
+/* navegação manual */
+.bar .count a{color:var(--muted)}
+.bar .count a:hover{color:var(--accent)}
+.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.btile{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:16px;cursor:pointer;transition:border-color .15s,transform .08s}
+.btile:hover{border-color:var(--accent);transform:translateY(-2px)}
+.btile .ic{font-size:26px;line-height:1}
+.btile b{display:block;font-size:15px}
+.btile small{display:block;font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:2px}
+.empty{color:var(--muted);font-size:14px;background:var(--panel);border:1px dashed var(--line);border-radius:13px;padding:30px;text-align:center;line-height:1.6}
+.empty a{color:var(--accent)}

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>TripPlanner — Para onde dá para ir</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/search.css">
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand"><span class="dot" id="brandDot"></span>TripPlanner <small>console</small></div>
+    <nav class="steps">
+      <div class="step done" id="st1"><span class="n">1</span>Origem</div>
+      <div class="step active" id="st2"><span class="n">2</span>Alcance</div>
+      <div class="step" id="st3"><span class="n">3</span>Destino</div>
+    </nav>
+  </header>
+
+  <div class="stage">
+    <div id="map"></div>
+
+    <aside class="console">
+      <div class="grabber" id="consoleGrabber">
+        <span class="label">Critérios</span>
+        <span class="chev">⌄</span>
+      </div>
+      <div class="scroll">
+
+        <div class="block">
+          <p class="eyebrow">De onde partes</p>
+          <div class="origin-pill">
+            <span class="ico"></span>
+            <span class="txt"><b id="originName">A localizar…</b><small id="originCoord">— , —</small></span>
+            <button class="pill-btn" id="btnLocate" title="Usar a minha localização">GPS</button>
+          </div>
+          <div class="field" style="margin-top:11px">
+            <label for="airport">Aeroporto de partida</label>
+            <input class="input" id="airport" list="airports" placeholder="ex.: LIS — Lisboa" value="LIS — Lisboa">
+            <datalist id="airports">
+              <option value="LIS — Lisboa"><option value="OPO — Porto"><option value="FAO — Faro">
+              <option value="MAD — Madrid"><option value="LHR — Londres Heathrow">
+            </datalist>
+          </div>
+          <p class="hint">Arrasta o ponto no mapa para corrigir a tua origem.</p>
+        </div>
+
+        <div class="block">
+          <p class="eyebrow">Critério de alcance</p>
+          <label class="switch" for="noLimit">
+            <input type="checkbox" id="noLimit">
+            <span class="track"><span class="knob"></span></span>
+            <span class="switch-label">Sem limite — o mundo todo</span>
+          </label>
+          <div id="critControls">
+          <div class="seg" id="modeSeg">
+            <button class="on" data-mode="radius">Raio (km)</button>
+            <button data-mode="time">Tempo de voo</button>
+          </div>
+          <div class="readout">
+            <div class="val"><span id="critVal">1500</span><span class="unit" id="critUnit">km</span></div>
+            <div class="meta" id="critMeta">≈ <b>—</b> de voo<br>direto estimado</div>
+          </div>
+          <input type="range" id="critRange" min="300" max="20000" step="100" value="1500">
+          <div class="scale"><span id="scaleMin">300 km</span><span id="scaleMax">20 000 km</span></div>
+          <p class="hint" id="modeHint">A zona dourada mostra tudo a este raio em linha reta da tua origem.</p>
+          </div>
+        </div>
+
+        <div class="block">
+          <p class="eyebrow">A tua viagem</p>
+          <div class="row">
+            <div class="field"><label>Ida</label><input class="input" type="date" id="dateOut"></div>
+            <div class="field" id="returnField"><label>Volta</label><input class="input" type="date" id="dateBack"></div>
+          </div>
+          <div class="seg" id="tripSeg" style="margin-bottom:11px">
+            <button class="on" data-trip="round">Ida e volta</button>
+            <button data-trip="one">Só ida</button>
+          </div>
+          <div class="field">
+            <label>Viajantes</label>
+            <div class="stepper">
+              <button id="paxMinus">−</button><span id="paxVal">2</span><button id="paxPlus">+</button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field"><label>Orçamento máx.</label><input class="input" id="budget" inputmode="numeric" placeholder="ex.: 800"></div>
+            <div class="field" style="flex:0 0 96px"><label>Moeda</label>
+              <select class="input" id="currency"><option>EUR €</option><option>USD $</option><option>GBP £</option><option>BRL R$</option></select>
+            </div>
+          </div>
+          <div class="field">
+            <label>Nacionalidade (para vistos)</label>
+            <select class="input" id="nationality">
+              <option value="PT">Portugal</option><option value="ES">Espanha</option>
+              <option value="FR">França</option><option value="GB">Reino Unido</option>
+              <option value="DE">Alemanha</option><option value="IT">Itália</option>
+              <option value="NL">Países Baixos</option><option value="US">Estados Unidos</option>
+              <option value="BR">Brasil</option><option value="AO">Angola</option>
+              <option value="MZ">Moçambique</option><option value="CA">Canadá</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="foot">
+        <div class="reach-stat"><span>Destinos ao alcance</span><b id="reachCount">—</b></div>
+        <div class="actions">
+          <button class="btn btn-primary" id="btnSearch">Pesquisar destinos</button>
+          <div class="pair">
+            <button class="btn btn-ghost" id="btnSurprise">🎲 Surpreende-me</button>
+            <button class="btn btn-ghost" id="btnBrowse">Explorar manualmente</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- modal de destino -->
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="destcard" id="destCard" role="dialog" aria-modal="true">
+      <div class="head">
+        <button class="close" id="destClose" aria-label="Fechar">×</button>
+        <div class="flag" id="dcFlag">📍</div>
+        <h3 id="dcName">—</h3>
+        <div class="sub" id="dcSub">—</div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><small>Distância</small><b id="dcDist">—</b></div>
+        <div class="metric"><small>Voo estimado</small><b id="dcTime">—</b></div>
+      </div>
+      <div class="cats">
+        <button class="cat">Voos</button><button class="cat">Hotéis</button>
+        <button class="cat">Lazer</button><button class="cat">Cultura</button><button class="cat">Extras</button>
+      </div>
+      <button class="btn btn-primary open-full" id="dcOpenFull">Ver destino</button>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
+<script type="module" src="assets/js/pages/search.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "tripplanner",
+  "version": "0.1.0",
+  "description": "Planeador de viagens com mapa por raio / tempo de voo.",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5"
+  }
+}

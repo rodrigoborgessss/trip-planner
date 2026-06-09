@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TripPlanner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/base.css">
+<style>
+  body{display:grid;place-items:center;min-height:100vh;padding:24px;background:
+    radial-gradient(900px 600px at 70% -10%, rgba(244,169,60,.10), transparent 60%),
+    radial-gradient(800px 600px at 10% 110%, rgba(54,199,208,.08), transparent 55%), var(--bg)}
+  .hero{max-width:680px;text-align:center}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:18px}
+  h1{font-family:var(--display);font-size:clamp(40px,7vw,72px);line-height:1.02;letter-spacing:-1.5px;margin:0 0 18px}
+  h1 em{font-style:normal;color:var(--accent)}
+  .lead{font-size:18px;color:var(--muted);line-height:1.6;max-width:540px;margin:0 auto 30px}
+  .feats{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:0 auto 36px;max-width:560px}
+  .feat{font-family:var(--mono);font-size:12px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 14px}
+  .start{font-size:17px;padding:15px 30px}
+</style>
+</head>
+<body>
+  <div class="hero">
+    <div class="kicker">Planeia · Voa · Descobre</div>
+    <h1>Diz-me onde estás.<br>Eu mostro-te <em>até onde dá para ir</em>.</h1>
+    <p class="lead">Define um raio ou um tempo de voo e o mapa pinta os destinos ao teu alcance. Voos, estadia, deslocações e o que há para fazer — tudo num sítio. Sem ideias? Carrega em surpresa.</p>
+    <div class="feats">
+      <span class="feat">Mapa por raio ou tempo de voo</span>
+      <span class="feat">Voos + hotéis + deslocação</span>
+      <span class="feat">Lazer e cultura</span>
+      <span class="feat">Modo surpresa</span>
+    </div>
+    <a class="btn btn-primary start" href="search.html">Começar</a>
+  </div>
+</body>
+</html>

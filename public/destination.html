@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TripPlanner — Destino</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/destination.css">
+</head>
+<body>
+  <nav class="nav">
+    <a href="search.html">← Mapa</a>
+    <a href="results.html">Resultados</a>
+    <span class="brand"><span class="dot"></span>TripPlanner</span>
+  </nav>
+
+  <div class="page">
+    <div id="content"><p class="loading">A montar o destino…</p></div>
+  </div>
+
+  <template id="tpl">
+    <div class="hero">
+      <div class="flag" data-flag>📍</div>
+      <h1 data-name>—</h1>
+      <div class="country" data-country>—</div>
+      <div class="strip">
+        <div class="stat"><small>Distância</small><b data-dist>—</b></div>
+        <div class="stat"><small>Voo estimado</small><b data-time>—</b></div>
+        <div class="stat total"><small>Total estimado</small><b data-total>—</b></div>
+      </div>
+    </div>
+
+    <div class="tabs" data-tabs></div>
+
+    <div class="section" data-sec="flights"></div>
+    <div class="section" data-sec="hotels"></div>
+    <div class="section" data-sec="transport"></div>
+    <div class="section" data-sec="leisure"></div>
+    <div class="section" data-sec="culture"></div>
+    <div class="section" data-sec="extras"></div>
+  </template>
+
+  <script type="module" src="assets/js/pages/destination.js"></script>
+</body>
+</html>
