@@ -27,7 +27,7 @@ async function fetchDestination() {
         name: sel.name, lat: sel.lat, lng: sel.lng, cc: sel.cc,
         country: sel.country, continent: sel.continent, iata: sel.iata, airport: state.airport,
         origin: state.origin, dateOut: state.dateOut, dateBack: state.dateBack, pax: state.pax,
-        nationality: state.nationality,
+        nationality: state.nationality, currency: state.currency,
       }),
     });
     const data = await res.json();
@@ -83,7 +83,37 @@ function render(d, nights) {
   root.innerHTML = '';
   root.appendChild(tpl);
   const hero = root.querySelector('.hero');
-  if (hero) lazyPhoto(hero, d.name, d.country);
+  if (hero) {
+    lazyPhoto(hero, d.name, d.country);
+    if (typeof d.lat === 'number') addMapButton(hero, d);
+  }
+}
+
+function addMapButton(hero, d) {
+  const b = document.createElement('button');
+  b.className = 'mapbtn';
+  b.title = 'Ver no mapa';
+  b.innerHTML = '🗺️';
+  b.onclick = () => openMapModal(d);
+  hero.appendChild(b);
+}
+
+function openMapModal(d) {
+  const o = 0.08;
+  const bbox = `${d.lng - o},${d.lat - o},${d.lng + o},${d.lat + o}`;
+  const src = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${d.lat},${d.lng}`;
+  const back = document.createElement('div');
+  back.className = 'mapmodal-back';
+  back.innerHTML = `
+    <div class="mapmodal">
+      <div class="mapmodal-head"><b>${d.name}</b><button class="mapmodal-close" aria-label="Fechar">×</button></div>
+      <iframe src="${src}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <a class="mapmodal-link" href="https://www.openstreetmap.org/?mlat=${d.lat}&mlon=${d.lng}#map=11/${d.lat}/${d.lng}" target="_blank" rel="noopener">Abrir no OpenStreetMap →</a>
+    </div>`;
+  const close = () => back.remove();
+  back.onclick = (e) => { if (e.target === back) close(); };
+  back.querySelector('.mapmodal-close').onclick = close;
+  document.body.appendChild(back);
 }
 
 function fill(el, html) { el.innerHTML = html; }

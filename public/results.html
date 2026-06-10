@@ -6,7 +6,8 @@
 <title>TripPlanner — Resultados</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/tokens.css">
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/results.css">
@@ -17,7 +18,7 @@
     <h1>Destinos</h1>
     <span class="count" id="count"></span>
     <div class="sort" id="sort">
-      <button class="on" data-sort="distance">Distância</button>
+      <button data-sort="distance">Distância</button>
       <button data-sort="time">Tempo de voo</button>
       <button data-sort="name">Nome</button>
     </div>
@@ -26,5 +27,6 @@
     <div id="content"><p class="state">A procurar destinos ao teu alcance…</p></div>
   </div>
   <script type="module" src="assets/js/pages/results.js"></script>
+  <script type="module" src="assets/js/theme.js"></script>
 </body>
 </html>

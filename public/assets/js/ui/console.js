@@ -60,9 +60,24 @@ export function initConsole(h) {
   $('btnSurprise').onclick = h.onSurprise;
   $('btnBrowse').onclick = h.onBrowse;
 
-  // mobile: recolher/expandir a consola (folha inferior)
+  // mobile: recolher/expandir e esconder/reabrir a consola
+  const consoleEl = document.querySelector('.console');
   const grabber = $('consoleGrabber');
-  if (grabber) grabber.onclick = () => document.querySelector('.console').classList.toggle('collapsed');
+  if (grabber) grabber.onclick = (e) => {
+    if (e.target.id === 'consoleHide') return;
+    consoleEl.classList.toggle('collapsed');
+  };
+  const hideBtn = $('consoleHide');
+  if (hideBtn) hideBtn.onclick = (e) => {
+    e.stopPropagation();
+    consoleEl.classList.add('hidden');
+    $('reopenConsole').classList.add('show');
+  };
+  const reopen = $('reopenConsole');
+  if (reopen) reopen.onclick = () => {
+    consoleEl.classList.remove('hidden');
+    reopen.classList.remove('show');
+  };
 }
 
 function setPax(n) {

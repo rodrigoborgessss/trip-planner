@@ -8,6 +8,7 @@ const router = express.Router();
 
 let AIRPORTS = [];
 try { AIRPORTS = require('../../public/data/airports.json'); } catch (e) { AIRPORTS = []; }
+const { continentOf } = require('../lib/region');
 
 router.get('/browse', (req, res) => {
   const { continent, cc } = req.query;
@@ -24,7 +25,7 @@ router.get('/browse', (req, res) => {
   if (continent) {
     const map = new Map();
     for (const a of AIRPORTS) {
-      if (a.continent !== continent) continue;
+      if (continentOf(a.cc, a.continent) !== continent) continue;
       const cur = map.get(a.cc) || { cc: a.cc, country: a.country, destinations: 0 };
       cur.destinations += 1;
       map.set(a.cc, cur);
@@ -36,10 +37,11 @@ router.get('/browse', (req, res) => {
   // nível 1: continentes
   const map = new Map();
   for (const a of AIRPORTS) {
-    const cur = map.get(a.continent) || { name: a.continent, countries: new Set(), destinations: 0 };
+    const cont = continentOf(a.cc, a.continent);
+    const cur = map.get(cont) || { name: cont, countries: new Set(), destinations: 0 };
     cur.countries.add(a.cc);
     cur.destinations += 1;
-    map.set(a.continent, cur);
+    map.set(cont, cur);
   }
   const order = ['Europa', 'África', 'Ásia', 'América do Norte', 'América do Sul', 'Oceânia'];
   const continents = [...map.values()]

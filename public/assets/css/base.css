@@ -26,3 +26,13 @@ a{color:var(--accent);text-decoration:none}
 
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* botão flutuante de tema */
+#themeToggle{
+  position:fixed;left:16px;bottom:16px;z-index:1200;
+  width:42px;height:42px;border-radius:50%;
+  background:var(--panel);border:1px solid var(--line);color:var(--ink);
+  font-size:18px;line-height:1;display:grid;place-items:center;
+  box-shadow:0 6px 18px rgba(0,0,0,.3);transition:transform .1s,background .15s;
+}
+#themeToggle:hover{transform:scale(1.06)}

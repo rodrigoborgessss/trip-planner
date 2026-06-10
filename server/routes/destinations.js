@@ -18,7 +18,7 @@ router.get('/destinations', async (req, res) => {
 // É este o contrato que a página dedicada consome. Quando os serviços passarem
 // a devolver dados reais, esta página enche-se sozinha.
 router.post('/destination', async (req, res) => {
-  const { name, lat, lng, cc, country, continent, iata, airport, origin, dateOut, dateBack, pax, nationality } = req.body || {};
+  const { name, lat, lng, cc, country, continent, iata, airport, origin, dateOut, dateBack, pax, nationality, currency } = req.body || {};
   try {
     const fromIata = parseIata(airport);
     const toIata = iata || null; // só existe quando o destino é um aeroporto
@@ -38,7 +38,7 @@ router.post('/destination', async (req, res) => {
     const nights = nightsBetween(dateOut, dateBack);
     const [fl, ht, act, ex] = await Promise.all([
       flights.searchFlights({ fromIata, toIata, departISO: dateOut, returnISO: dateBack, pax }),
-      hotels.searchHotels({ lat, lng, checkin: dateOut, checkout: dateBack, pax }),
+      hotels.searchHotels({ city: name, lat, lng, checkin: dateOut, checkout: dateBack, pax, currency }),
       activities.searchActivities({ lat, lng }),
       safety.getExtras({ countryCode: cc, country: country || name, lat, lng, dateOut, nationality }),
     ]);

@@ -38,6 +38,12 @@ export function setOrigin(lat, lng, name) {
   onChangeCb();
 }
 
+// move o marcador e a origem (usado pelo "definir como partida")
+export function moveOrigin(lat, lng, name) {
+  if (marker) marker.setLatLng([lat, lng]);
+  setOrigin(lat, lng, name);
+}
+
 // Pede GPS. callbacks: onLocated(lat,lng) / onError(msg)
 export function locateMe(onLocated, onError) {
   if (!navigator.geolocation) return onError('Geolocalização indisponível neste dispositivo.');

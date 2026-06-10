@@ -132,6 +132,8 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
 
 /* puxador da folha (só mobile) */
 .grabber{display:none}
+.grab-hide{display:none}
+.reopen{display:none}
 
 /* ---------- responsivo ---------- */
 @media (max-width:760px){
@@ -148,17 +150,26 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
     transition:transform .25s ease;
   }
   .grabber{
-    display:flex;align-items:center;justify-content:space-between;
-    padding:10px 18px 4px;cursor:pointer;user-select:none;
+    display:flex;align-items:center;gap:10px;
+    padding:12px 18px 8px;cursor:pointer;user-select:none;position:relative;
   }
-  .grabber::before{content:'';position:absolute;left:50%;top:7px;transform:translateX(-50%);width:38px;height:4px;border-radius:4px;background:var(--line)}
-  .grabber .label{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:6px}
-  .grabber .chev{margin-top:6px;color:var(--muted);transition:transform .2s}
+  .grabber::before{content:'';position:absolute;left:50%;top:6px;transform:translateX(-50%);width:38px;height:4px;border-radius:4px;background:var(--line)}
+  .grabber .chev{color:var(--muted);transition:transform .2s}
+  .grabber .label{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;flex:1}
+  .grab-hide{display:grid;place-items:center;width:30px;height:30px;border-radius:8px;background:var(--panel-2);border:1px solid var(--line);color:var(--ink);font-size:15px}
 
-  .console .scroll{max-height:48vh}
+  .console .scroll{max-height:46vh}
   .console.collapsed{max-height:none}
   .console.collapsed .scroll{display:none}
   .console.collapsed .grabber .chev{transform:rotate(180deg)}
+  .console.hidden{transform:translateY(110%)}
+
+  .reopen{
+    display:block;position:absolute;left:50%;bottom:16px;transform:translateX(-50%);
+    z-index:550;background:var(--accent);color:#0E1820;border:0;border-radius:999px;
+    padding:12px 22px;font-weight:600;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;pointer-events:none;
+  }
+  .reopen.show{opacity:1;pointer-events:auto}
 
   /* alvos de toque maiores */
   .seg button{padding:11px 6px}

@@ -17,10 +17,24 @@
   --accent:var(--amber);
   --accent-soft:var(--amber-soft);
 
-  --display:'Space Grotesk',system-ui,sans-serif;
-  --ui:'Inter',system-ui,sans-serif;
+  --display:'Montserrat',system-ui,sans-serif;
+  --ui:'Montserrat',system-ui,sans-serif;
   --mono:'Space Mono',ui-monospace,monospace;
 
   --radius:14px;
   --gap:14px;
+}
+
+/* tema claro */
+:root[data-theme="light"]{
+  --bg:#EEF2F6;
+  --panel:#FFFFFF;
+  --panel-2:#E7EDF2;
+  --line:#D3DCE4;
+  --ink:#15222E;
+  --muted:#5C6B78;
+  --amber:#D8861B;
+  --amber-soft:rgba(216,134,27,.15);
+  --teal:#1E9AA3;
+  --teal-soft:rgba(30,154,163,.13);
 }

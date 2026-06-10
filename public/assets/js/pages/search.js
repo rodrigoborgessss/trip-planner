@@ -2,7 +2,7 @@
 import { CONFIG } from '../config.js';
 import { state, loadState, saveState } from '../state.js';
 import { initMap } from '../map/mapView.js';
-import { initOrigin, locateMe } from '../map/origin.js';
+import { initOrigin, locateMe, moveOrigin } from '../map/origin.js';
 import { initReach, updateReach, surprise } from '../map/reach.js';
 import { initAirports, refresh as refreshAirports, getMainAirportByCC } from '../map/airports.js';
 import * as Console from '../ui/console.js';
@@ -33,7 +33,18 @@ function selectCountry(feature) {
 
 initAirports(map, (airport) => { Modal.openAirport(airport); Console.setStep(3); });
 
-Modal.initModal();
+Modal.initModal({
+  onSetDeparture: (sel) => {
+    state.airport = `${sel.iata} — ${sel.name}`;
+    moveOrigin(sel.lat, sel.lng, sel.name);
+    map.flyTo([sel.lat, sel.lng], 5, { duration: 1.0 });
+    Console.hydrateConsole();
+    Console.renderOriginUI();
+    updateReach();
+    refreshAirports();
+    toast(`Partida definida: ${sel.iata} — ${sel.name}`);
+  },
+});
 
 Console.initConsole({
   onSlide: () => updateReach({ live: true }),

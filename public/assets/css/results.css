@@ -9,6 +9,19 @@
 .bar .sort{margin-left:auto;display:flex;gap:4px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:3px}
 .bar .sort button{border:0;background:transparent;color:var(--muted);font-size:12.5px;padding:7px 12px;border-radius:7px}
 .bar .sort button.on{background:var(--accent);color:#0E1820;font-weight:600}
+.bar .sort .arr{font-family:var(--mono)}
+
+/* grupos por país (colapsáveis) */
+.cgroup{margin-bottom:14px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel)}
+.cghead{width:100%;display:flex;align-items:center;gap:11px;padding:14px 16px;background:transparent;border:0;color:var(--ink);font-size:16px;text-align:left}
+.cghead:hover{background:var(--panel-2)}
+.cghead .chev{font-family:var(--mono);color:var(--muted);transition:transform .2s}
+.cgroup.collapsed .cghead .chev{transform:rotate(-90deg)}
+.cghead .cgflag{font-size:20px}
+.cghead b{flex:1;font-weight:600}
+.cghead .cgn{font-family:var(--mono);font-size:12px;color:var(--muted);background:var(--panel-2);padding:2px 9px;border-radius:999px}
+.cgbody{padding:0 16px 16px}
+.cgroup.collapsed .cgbody{display:none}
 
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
 .dcard{

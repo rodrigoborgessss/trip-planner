@@ -7,7 +7,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/tokens.css">
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/search.css">
@@ -29,8 +30,9 @@
 
     <aside class="console">
       <div class="grabber" id="consoleGrabber">
-        <span class="label">Critérios</span>
         <span class="chev">⌄</span>
+        <span class="label">Critérios</span>
+        <button class="grab-hide" id="consoleHide" aria-label="Esconder menu">⤓</button>
       </div>
       <div class="scroll">
 
@@ -140,15 +142,18 @@
         <button class="cat">Voos</button><button class="cat">Hotéis</button>
         <button class="cat">Lazer</button><button class="cat">Cultura</button><button class="cat">Extras</button>
       </div>
+      <button class="btn btn-ghost open-full" id="dcSetDeparture" style="margin:0 22px 10px;width:calc(100% - 44px);display:none">✈ Definir como partida</button>
       <button class="btn btn-primary open-full" id="dcOpenFull">Ver destino</button>
     </div>
 
     <div class="toast" id="toast"></div>
+    <button class="reopen" id="reopenConsole">Critérios ⤴</button>
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
 <script type="module" src="assets/js/pages/search.js"></script>
+  <script type="module" src="assets/js/theme.js"></script>
 </body>
 </html>

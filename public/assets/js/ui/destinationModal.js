@@ -10,14 +10,20 @@ function flagEmoji(iso2) {
   return iso2.toUpperCase().replace(/./g, (c) => String.fromCodePoint(127397 + c.charCodeAt(0)));
 }
 const $ = (id) => document.getElementById(id);
+let handlers = {};
 
-export function initModal() {
+export function initModal(h) {
+  handlers = h || {};
   $('destClose').onclick = close;
   $('modalBackdrop').onclick = close;
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
   $('dcOpenFull').onclick = () => {
     saveState();
     location.href = 'destination.html';
+  };
+  $('dcSetDeparture').onclick = () => {
+    if (handlers.onSetDeparture && state.selected) handlers.onSetDeparture(state.selected);
+    close();
   };
 }
 
@@ -29,6 +35,8 @@ function show(sel, est) {
   $('dcSub').textContent = sel.sub;
   $('dcDist').textContent = fmtKm(est.km);
   $('dcTime').textContent = fmtH(est.hours);
+  // "definir como partida" só faz sentido quando há aeroporto
+  $('dcSetDeparture').style.display = sel.kind === 'airport' && sel.iata ? '' : 'none';
   $('modalBackdrop').classList.add('show');
   $('destCard').classList.add('show');
 }
