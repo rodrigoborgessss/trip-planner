@@ -4,7 +4,7 @@ import { state, loadState, saveState } from '../state.js';
 import { initMap } from '../map/mapView.js';
 import { initOrigin, locateMe, moveOrigin } from '../map/origin.js';
 import { initReach, updateReach, surprise } from '../map/reach.js';
-import { initAirports, refresh as refreshAirports, getMainAirportByCC } from '../map/airports.js';
+import { initAirports, refresh as refreshAirports, getMainAirportByCC, getNearestAirportByCC } from '../map/airports.js';
 import * as Console from '../ui/console.js';
 import * as Modal from '../ui/destinationModal.js';
 import { toast } from '../ui/toast.js';
@@ -18,15 +18,18 @@ const map = initMap();
 initOrigin(map, () => { Console.renderOriginUI(); updateReach(); refreshAirports(); });
 
 initReach(map, {
-  onCountry: (feature) => { selectCountry(feature); Console.setStep(3); },
+  onCountry: (feature, latlng) => { selectCountry(feature, latlng); Console.setStep(3); },
   onCount: (n) => { document.getElementById('reachCount').textContent = n; },
 });
 
 // Clicar num país resolve para o seu aeroporto principal (para nunca avançar
 // sem aeroporto). Se não houver dados, abre o país como antes.
-function selectCountry(feature) {
-  const cc = ISO3_TO_2[feature.id] || (feature.properties && feature.properties.iso_a2);
-  const ap = cc ? getMainAirportByCC(cc) : null;
+function selectCountry(feature, latlng) {
+  const cc = (feature.properties && feature.properties.cc) || ISO3_TO_2[feature.id];
+  // ponto clicado (ou centroide, no caso do "surpreende-me")
+  let pt = latlng;
+  if (!pt) { try { const c = turf.centroid(feature).geometry.coordinates; pt = { lat: c[1], lng: c[0] }; } catch (e) {} }
+  const ap = cc ? (pt ? getNearestAirportByCC(cc, pt.lat, pt.lng) : getMainAirportByCC(cc)) : null;
   if (ap) Modal.openAirport(ap);
   else Modal.openCountry(feature, cc);
 }

@@ -128,7 +128,7 @@ function paintCountries() {
       const layer = L.geoJSON(inter, {
         style: { color: accent(), weight: 1, fillColor: accent(), fillOpacity: 0.3 },
       }).addTo(map);
-      layer.on('click', (ev) => { L.DomEvent.stopPropagation(ev); onCountrySelect(f); });
+      layer.on('click', (ev) => { L.DomEvent.stopPropagation(ev); onCountrySelect(f, ev.latlng); });
       highlights.push(layer);
     } catch (e) { /* topologia inválida — ignora */ }
   }
@@ -144,7 +144,7 @@ function loadCountries() {
       baseLayer = L.geoJSON(geo, {
         style: { color: 'transparent', weight: 0, fillColor: '#fff', fillOpacity: 0 },
         onEachFeature: (f, layer) =>
-          layer.on('click', (ev) => { L.DomEvent.stopPropagation(ev); onCountrySelect(f); }),
+          layer.on('click', (ev) => { L.DomEvent.stopPropagation(ev); onCountrySelect(f, ev.latlng); }),
       }).addTo(map);
       updateReach();
     })

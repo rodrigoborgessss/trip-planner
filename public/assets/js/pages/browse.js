@@ -4,6 +4,8 @@
 import { CONFIG } from '../config.js';
 import { state, loadState, saveState } from '../state.js';
 import { lazyPhoto } from '../ui/photo.js';
+import { t } from '../i18n.js';
+import { flagImg } from '../lib/flag.js';
 
 loadState();
 const content = document.getElementById('content');
@@ -26,7 +28,7 @@ function setCrumbs() {
   crumbs.innerHTML = path.map((p, i) =>
     `<a href="#" data-i="${i}">${p.label}</a>`).join(' › ') || '';
   crumbs.querySelectorAll('a').forEach((a) =>
-    (a.onclick = (e) => { e.preventDefault(); const i = +a.dataset.i; path = path.slice(0, i); path[i].go(); }));
+    (a.onclick = (e) => { e.preventDefault(); const go = path[+a.dataset.i] && path[+a.dataset.i].go; if (go) go(); }));
 }
 
 function loading(msg) { content.innerHTML = `<p class="state">${msg}</p>`; }
@@ -51,7 +53,7 @@ async function showCountries(continent) {
   try {
     const { countries } = await api(`?continent=${encodeURIComponent(continent)}`);
     grid(countries.map((c) => tile(
-      c.country, `${c.destinations} destino(s)`, flag(c.cc),
+      c.country, `${c.destinations} destino(s)`, flagImg(c.cc, 'lg'),
       () => showDestinations(c.cc, c.country)
     )));
   } catch (e) { fail(); }
@@ -69,11 +71,11 @@ async function showDestinations(cc, country) {
       const card = document.createElement('div');
       card.className = 'dcard';
       card.innerHTML = `
-        <div class="banner"><span class="iata">${d.iata}</span><span class="flag-badge">${flag(cc)}</span></div>
+        <div class="banner"><span class="iata">${d.iata}</span><span class="flag-badge">${flagImg(cc)}</span></div>
         <div class="body">
           <h3>${d.city || d.name}</h3>
           <div class="country">${d.name}</div>
-          <div class="go">Ver destino →</div>
+          <div class="go">${t('modal.viewDest')} →</div>
         </div>`;
       card.onclick = () => open(d, cc, country);
       g.appendChild(card);

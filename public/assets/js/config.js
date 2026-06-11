@@ -8,7 +8,9 @@ export const CONFIG = {
     minZoom: 2,
   },
   // contornos dos países (para pintar a parte alcançável). Podes servir local em /data.
-  countriesGeoJSON: 'https://cdn.jsdelivr.net/gh/johan/world.geo.json@master/countries.geo.json',
+  // Contornos de países em alta resolução (Natural Earth 50m), servidos
+  // localmente. Inclui ilhas e arquipélagos pequenos (clicáveis como países).
+  countriesGeoJSON: 'data/countries.geo.json',
 
   // aeroportos reais (OurAirports, com serviço regular). Servido localmente.
   airports: {

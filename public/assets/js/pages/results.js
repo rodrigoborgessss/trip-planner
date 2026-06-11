@@ -6,6 +6,8 @@ import { CONFIG } from '../config.js';
 import { state, loadState, saveState } from '../state.js';
 import { fmtKm, fmtH } from '../lib/format.js';
 import { lazyPhoto } from '../ui/photo.js';
+import { t } from '../i18n.js';
+import { flagImg } from '../lib/flag.js';
 
 loadState();
 const content = document.getElementById('content');
@@ -51,7 +53,7 @@ async function fetchResults() {
     const data = await res.json();
     if (!data.ok) throw new Error();
     current = data.destinations;
-    countEl.textContent = `${data.count} ao alcance${data.count > current.length ? ` · a mostrar ${current.length}` : ''}`;
+    countEl.textContent = `${data.count} ${t('res.inRange')}${data.count > current.length ? ` · ${t('res.showing')} ${current.length}` : ''}`;
     draw();
   } catch (e) {
     content.innerHTML = `<div class="empty">Não foi possível obter os destinos. Confirma que o servidor está a correr (<code>npm start</code>).</div>`;
@@ -60,7 +62,7 @@ async function fetchResults() {
 
 function draw() {
   if (!current.length) {
-    content.innerHTML = `<div class="empty">Nada ao alcance com estes critérios.<br>Volta ao <a href="search.html">mapa</a> e aumenta o raio ou liga o "sem limite".</div>`;
+    content.innerHTML = `<div class="empty">${t('res.none')}<br><a href="search.html">${t('nav.map')}</a></div>`;
     return;
   }
   content.innerHTML = '';
@@ -90,21 +92,30 @@ function drawGrouped() {
   const groups = new Map();
   for (const d of current) {
     const key = d.country || '—';
-    if (!groups.has(key)) groups.set(key, { cc: d.cc, items: [] });
-    groups.get(key).items.push(d);
+    if (!groups.has(key)) groups.set(key, { cc: d.cc, items: [], min: Infinity });
+    const g = groups.get(key);
+    g.items.push(d);
+    if (d.distanceKm < g.min) g.min = d.distanceKm;
   }
-  const ordered = [...groups.entries()].sort((a, b) => b[1].items.length - a[1].items.length);
+  // países ordenados por proximidade (o destino mais próximo de cada país)
+  const ordered = [...groups.entries()].sort((a, b) => a[1].min - b[1].min);
 
   for (const [country, g] of ordered) {
     const sec = document.createElement('section');
     sec.className = 'cgroup collapsed';
     const head = document.createElement('button');
     head.className = 'cghead';
-    head.innerHTML = `<span class="chev">⌄</span><span class="cgflag">${flag(g.cc)}</span><b>${country}</b><span class="cgn">${g.items.length}</span>`;
+    head.innerHTML = `<span class="chev">⌄</span><span class="cgflag">${flagImg(g.cc, 'lg')}</span><b>${country}</b><span class="cgn">${g.items.length}</span>`;
     const body = document.createElement('div');
     body.className = 'grid cgbody';
-    g.items.sort((x, y) => x.distanceKm - y.distanceKm).forEach((d) => body.appendChild(card(d)));
-    head.onclick = () => sec.classList.toggle('collapsed');
+    let built = false;
+    head.onclick = () => {
+      sec.classList.toggle('collapsed');
+      if (!built && !sec.classList.contains('collapsed')) {   // só monta os cartões ao abrir
+        g.items.sort((x, y) => x.distanceKm - y.distanceKm).forEach((d) => body.appendChild(card(d)));
+        built = true;
+      }
+    };
     sec.appendChild(head); sec.appendChild(body);
     content.appendChild(sec);
   }
@@ -114,7 +125,7 @@ function card(d) {
   const el = document.createElement('div');
   el.className = 'dcard';
   el.innerHTML = `
-    <div class="banner"><span class="iata">${d.iata}</span><span class="flag-badge">${flag(d.cc)}</span></div>
+    <div class="banner"><span class="iata">${d.iata}</span><span class="flag-badge">${flagImg(d.cc)}</span></div>
     <div class="body">
       <h3>${d.city || d.name}</h3>
       <div class="country">${d.country}${d.continent ? ' · ' + d.continent : ''}</div>
@@ -122,7 +133,7 @@ function card(d) {
         <div class="metric"><small>Distância</small><b>${fmtKm(d.distanceKm)}</b></div>
         <div class="metric"><small>Voo estimado</small><b>${fmtH(d.flightTimeH)}</b></div>
       </div>
-      <div class="go">Ver voos e preços →</div>
+      <div class="go">${t('res.see')}</div>
     </div>`;
   el.onclick = () => open(d);
   lazyPhoto(el.querySelector('.banner'), d.city || d.name, d.country);

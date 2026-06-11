@@ -43,7 +43,7 @@ router.get('/browse', (req, res) => {
     cur.destinations += 1;
     map.set(cont, cur);
   }
-  const order = ['Europa', 'África', 'Ásia', 'América do Norte', 'América do Sul', 'Oceânia'];
+  const order = ['Europa', 'África', 'Ásia', 'Médio Oriente', 'América do Norte', 'América do Sul', 'Oceânia'];
   const continents = [...map.values()]
     .map((c) => ({ name: c.name, countries: c.countries.size, destinations: c.destinations }))
     .sort((x, y) => order.indexOf(x.name) - order.indexOf(y.name));

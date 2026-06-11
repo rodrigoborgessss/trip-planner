@@ -14,14 +14,15 @@
 </head>
 <body>
   <div class="bar">
-    <a href="search.html">← Mapa</a>
-    <h1>Explorar</h1>
+    <a href="search.html" class="backmap" title="Mapa" aria-label="Mapa"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/></svg></a>
+    <h1 data-i18n="nav.explore">Explorar</h1>
     <span class="count" id="crumbs"></span>
   </div>
   <div class="wrap">
-    <div id="content"><p class="state">A carregar continentes…</p></div>
+    <div id="content"><p class="state" data-i18n="b.loadingC">A carregar continentes…</p></div>
   </div>
   <script type="module" src="assets/js/pages/browse.js"></script>
+  <script type="module" src="assets/js/i18n.js"></script>
   <script type="module" src="assets/js/theme.js"></script>
 </body>
 </html>

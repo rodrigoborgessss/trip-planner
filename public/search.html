@@ -17,11 +17,11 @@
 <div class="app">
 
   <header class="topbar">
-    <div class="brand"><span class="dot" id="brandDot"></span>TripPlanner <small>console</small></div>
+    <div class="brand"><span class="dot" id="brandDot"></span>TripPlanner <small data-i18n="console">console</small></div>
     <nav class="steps">
-      <div class="step done" id="st1"><span class="n">1</span>Origem</div>
-      <div class="step active" id="st2"><span class="n">2</span>Alcance</div>
-      <div class="step" id="st3"><span class="n">3</span>Destino</div>
+      <div class="step done" id="st1"><span class="n">1</span><span data-i18n="step.origin">Origem</span></div>
+      <div class="step active" id="st2"><span class="n">2</span><span data-i18n="step.range">Alcance</span></div>
+      <div class="step" id="st3"><span class="n">3</span><span data-i18n="step.dest">Destino</span></div>
     </nav>
   </header>
 
@@ -31,40 +31,40 @@
     <aside class="console">
       <div class="grabber" id="consoleGrabber">
         <span class="chev">⌄</span>
-        <span class="label">Critérios</span>
+        <span class="label" data-i18n="s.criteria">Critérios</span>
         <button class="grab-hide" id="consoleHide" aria-label="Esconder menu">⤓</button>
       </div>
       <div class="scroll">
 
         <div class="block">
-          <p class="eyebrow">De onde partes</p>
+          <p class="eyebrow" data-i18n="s.from">De onde partes</p>
           <div class="origin-pill">
             <span class="ico"></span>
             <span class="txt"><b id="originName">A localizar…</b><small id="originCoord">— , —</small></span>
             <button class="pill-btn" id="btnLocate" title="Usar a minha localização">GPS</button>
           </div>
           <div class="field" style="margin-top:11px">
-            <label for="airport">Aeroporto de partida</label>
-            <input class="input" id="airport" list="airports" placeholder="ex.: LIS — Lisboa" value="LIS — Lisboa">
+            <label for="airport" data-i18n="s.airport">Aeroporto de partida</label>
+            <input class="input" id="airport" list="airports" placeholder="ex.: LIS — Lisboa" data-i18n-ph="s.airportPh" value="LIS — Lisboa">
             <datalist id="airports">
               <option value="LIS — Lisboa"><option value="OPO — Porto"><option value="FAO — Faro">
               <option value="MAD — Madrid"><option value="LHR — Londres Heathrow">
             </datalist>
           </div>
-          <p class="hint">Arrasta o ponto no mapa para corrigir a tua origem.</p>
+          <p class="hint" data-i18n="s.dragHint">Arrasta o ponto no mapa para corrigir a tua origem.</p>
         </div>
 
         <div class="block">
-          <p class="eyebrow">Critério de alcance</p>
+          <p class="eyebrow" data-i18n="s.criterion">Critério de alcance</p>
           <label class="switch" for="noLimit">
             <input type="checkbox" id="noLimit">
             <span class="track"><span class="knob"></span></span>
-            <span class="switch-label">Sem limite — o mundo todo</span>
+            <span class="switch-label" data-i18n="s.noLimit">Sem limite — o mundo todo</span>
           </label>
           <div id="critControls">
           <div class="seg" id="modeSeg">
-            <button class="on" data-mode="radius">Raio (km)</button>
-            <button data-mode="time">Tempo de voo</button>
+            <button class="on" data-mode="radius" data-i18n="s.radius">Raio (km)</button>
+            <button data-mode="time" data-i18n="s.flightTime">Tempo de voo</button>
           </div>
           <div class="readout">
             <div class="val"><span id="critVal">1500</span><span class="unit" id="critUnit">km</span></div>
@@ -77,29 +77,29 @@
         </div>
 
         <div class="block">
-          <p class="eyebrow">A tua viagem</p>
+          <p class="eyebrow" data-i18n="s.trip">A tua viagem</p>
           <div class="row">
-            <div class="field"><label>Ida</label><input class="input" type="date" id="dateOut"></div>
-            <div class="field" id="returnField"><label>Volta</label><input class="input" type="date" id="dateBack"></div>
+            <div class="field"><label data-i18n="s.out">Ida</label><input class="input" type="date" id="dateOut"></div>
+            <div class="field" id="returnField"><label data-i18n="s.back">Volta</label><input class="input" type="date" id="dateBack"></div>
           </div>
           <div class="seg" id="tripSeg" style="margin-bottom:11px">
-            <button class="on" data-trip="round">Ida e volta</button>
-            <button data-trip="one">Só ida</button>
+            <button class="on" data-trip="round" data-i18n="s.roundTrip">Ida e volta</button>
+            <button data-trip="one" data-i18n="s.oneWay">Só ida</button>
           </div>
           <div class="field">
-            <label>Viajantes</label>
+            <label data-i18n="s.travelers">Viajantes</label>
             <div class="stepper">
               <button id="paxMinus">−</button><span id="paxVal">2</span><button id="paxPlus">+</button>
             </div>
           </div>
           <div class="row">
-            <div class="field"><label>Orçamento máx.</label><input class="input" id="budget" inputmode="numeric" placeholder="ex.: 800"></div>
-            <div class="field" style="flex:0 0 96px"><label>Moeda</label>
+            <div class="field"><label data-i18n="s.budget">Orçamento máx.</label><input class="input" id="budget" inputmode="numeric" placeholder="ex.: 800" data-i18n-ph="s.budgetPh"></div>
+            <div class="field" style="flex:0 0 96px"><label data-i18n="s.currency">Moeda</label>
               <select class="input" id="currency"><option>EUR €</option><option>USD $</option><option>GBP £</option><option>BRL R$</option></select>
             </div>
           </div>
           <div class="field">
-            <label>Nacionalidade (para vistos)</label>
+            <label data-i18n="s.nationality">Nacionalidade (para vistos)</label>
             <select class="input" id="nationality">
               <option value="PT">Portugal</option><option value="ES">Espanha</option>
               <option value="FR">França</option><option value="GB">Reino Unido</option>
@@ -114,12 +114,12 @@
       </div>
 
       <div class="foot">
-        <div class="reach-stat"><span>Destinos ao alcance</span><b id="reachCount">—</b></div>
+        <div class="reach-stat"><span data-i18n="s.reach">Destinos ao alcance</span><b id="reachCount">—</b></div>
         <div class="actions">
-          <button class="btn btn-primary" id="btnSearch">Pesquisar destinos</button>
+          <button class="btn btn-primary" id="btnSearch" data-i18n="btn.search">Pesquisar destinos</button>
           <div class="pair">
-            <button class="btn btn-ghost" id="btnSurprise">🎲 Surpreende-me</button>
-            <button class="btn btn-ghost" id="btnBrowse">Explorar manualmente</button>
+            <button class="btn btn-ghost" id="btnSurprise" data-i18n="btn.surprise">🎲 Surpreende-me</button>
+            <button class="btn btn-ghost" id="btnBrowse" data-i18n="btn.browse">Explorar manualmente</button>
           </div>
         </div>
       </div>
@@ -135,25 +135,26 @@
         <div class="sub" id="dcSub">—</div>
       </div>
       <div class="metrics">
-        <div class="metric"><small>Distância</small><b id="dcDist">—</b></div>
-        <div class="metric"><small>Voo estimado</small><b id="dcTime">—</b></div>
+        <div class="metric"><small data-i18n="m.distance">Distância</small><b id="dcDist">—</b></div>
+        <div class="metric"><small data-i18n="m.flightEst">Voo estimado</small><b id="dcTime">—</b></div>
       </div>
       <div class="cats">
-        <button class="cat">Voos</button><button class="cat">Hotéis</button>
-        <button class="cat">Lazer</button><button class="cat">Cultura</button><button class="cat">Extras</button>
+        <button class="cat" data-i18n="tab.flights">Voos</button><button class="cat" data-i18n="tab.hotels">Hotéis</button>
+        <button class="cat" data-i18n="tab.leisure">Lazer</button><button class="cat" data-i18n="tab.culture">Cultura</button><button class="cat" data-i18n="tab.extras">Extras</button>
       </div>
-      <button class="btn btn-ghost open-full" id="dcSetDeparture" style="margin:0 22px 10px;width:calc(100% - 44px);display:none">✈ Definir como partida</button>
-      <button class="btn btn-primary open-full" id="dcOpenFull">Ver destino</button>
+      <button class="btn btn-ghost open-full" id="dcSetDeparture" data-i18n="modal.setDeparture" style="margin:0 22px 10px;width:calc(100% - 44px);display:none">✈ Definir como partida</button>
+      <button class="btn btn-primary open-full" id="dcOpenFull" data-i18n="modal.viewDest">Ver destino</button>
     </div>
 
     <div class="toast" id="toast"></div>
-    <button class="reopen" id="reopenConsole">Critérios ⤴</button>
+    <button class="reopen" id="reopenConsole" data-i18n="reopen">Critérios ⤴</button>
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
 <script type="module" src="assets/js/pages/search.js"></script>
+  <script type="module" src="assets/js/i18n.js"></script>
   <script type="module" src="assets/js/theme.js"></script>
 </body>
 </html>

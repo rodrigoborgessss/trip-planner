@@ -11,7 +11,7 @@ const geo = require('../services/geo');
 let AIRPORTS = [];
 try { AIRPORTS = require('../../public/data/airports.json'); } catch (e) { AIRPORTS = []; }
 
-const MAX = 150; // teto de candidatos devolvidos
+const MAX = 5000; // teto de segurança (na prática, o mundo todo a partir da Europa ~3,4k)
 
 router.post('/search', (req, res) => {
   const { origin, airport, mode, radiusKm, timeH, noLimit, sort } = req.body || {};

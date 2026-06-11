@@ -1,75 +1,71 @@
-// Hotéis via Hotellook / Travelpayouts (afiliado com deeplink — sem processar
-// pagamentos). Conta gratuita em travelpayouts.com dá o token e o "marker".
-// Sem HOTELS_TOKEN devolve exemplos.
+// Hotéis — hotéis REAIS da cidade (OpenStreetMap), com estrelas e foto quando
+// existem, e deeplink de reserva (com o teu marker de afiliado = comissão).
 //
-// Modelo: mostramos preços indicativos (cache do Hotellook) e mandamos o
-// utilizador reservar no parceiro pelo deeplink com o teu marker (= comissão).
-//
-// TODO confirmar os campos exatos na doc atual do Travelpayouts/Hotellook ao
-// ligares o token; o mapeamento está isolado em normalizeHotel().
-const config = require('../config');
+// Porque não há preço inline: a API de dados de hotéis gratuita (Hotellook)
+// foi descontinuada e não há fonte grátis fiável de PREÇOS ao vivo. O OSM dá
+// os hotéis e fotos; o preço aparece no parceiro ao clicar. Para preços dentro
+// da app é preciso uma API paga (RateHawk, Hotelbeds) — o render já está pronto
+// para mostrar preço se um dia devolveres pricePerNight aqui.
 const cache = require('../cache/store');
+const config = require('../config');
+const { pois } = require('../lib/poi');
 
-async function searchHotels({ city, lat, lng, checkin, checkout, pax, currency }) {
-  if (!config.keys.hotels) return mock({ lat, lng });
-  const cur = (currency || 'EUR').toLowerCase();
-  const loc = city || (lat != null ? `${lat},${lng}` : '');
-  if (!loc) return [];
+async function searchHotels({ city, iata, lat, lng, checkin, checkout, pax }) {
+  const dest = city || iata || '';
+  const marker = config.keys.hotelsMarker;
+  if (typeof lat !== 'number') return searchLinks(dest, checkin, checkout, pax, marker);
 
-  return cache.remember(`htl:${loc}:${checkin}:${checkout}:${cur}`, 180, async () => {
-    try {
-      const u = `https://engine.hotellook.com/api/v2/cache.json`
-        + `?location=${encodeURIComponent(loc)}`
-        + (checkin ? `&checkIn=${checkin}` : '') + (checkout ? `&checkOut=${checkout}` : '')
-        + `&currency=${cur}&limit=10&token=${config.keys.hotels}`;
-      const r = await fetch(u);
-      if (!r.ok) { console.error('[hotéis] Hotellook', r.status); return []; }
-      const data = await r.json();
-      const list = Array.isArray(data) ? data : (data.hotels || []);
-      return list.slice(0, 10).map((h) => normalizeHotel(h, { city, checkin, checkout, pax, cur }));
-    } catch (e) {
-      console.error('[hotéis] erro:', e.message);
-      return [];
+  return cache.remember(`htl:${lat.toFixed(3)},${lng.toFixed(3)}:${checkin}:${checkout}`, 720, async () => {
+    const q = `[out:json][timeout:18];
+(
+  node["tourism"="hotel"]["name"](around:7000,${lat},${lng});
+  way["tourism"="hotel"]["name"](around:7000,${lat},${lng});
+);
+out center 80;`;
+    const items = await pois({ lat, lng, radius: 7000, geoapifyCats: 'accommodation.hotel', overpassQuery: q, tag: ':hotéis' });
+    if (!items) return searchLinks(dest, checkin, checkout, pax, marker);
+
+    const seen = new Set();
+    const hotels = [];
+    for (const it of items) {
+      const t = it.tags || {};
+      const name = (t.name || '').trim();
+      if (!name || seen.has(name)) continue;
+      seen.add(name);
+      hotels.push({
+        name,
+        stars: parseInt(t.stars, 10) || 0,
+        wikidata: t.wikidata || null,
+        commons: /^File:/i.test(t.wikimedia_commons || '') ? t.wikimedia_commons.replace(/^File:/i, '') : null,
+        photo: null,
+        deeplink: bookingFor(name, dest, checkin, checkout, pax, marker),
+      });
     }
+    // melhores primeiro (estrelas, depois notoriedade); foto para o top
+    hotels.sort((a, b) => b.stars - a.stars || (b.wikidata ? 1 : 0) - (a.wikidata ? 1 : 0));
+    const top = hotels.slice(0, 15);
+    if (!top.length) return searchLinks(dest, checkin, checkout, pax, marker);
+    return top.map(({ wikidata, commons, fame, ...keep }) => keep);
   });
 }
 
-function normalizeHotel(h, ctx) {
-  const name = h.hotelName || h.name || 'Hotel';
-  const price = h.priceFrom || h.priceAvg || h.price || null;
-  return {
-    id: h.hotelId || h.id || name,
-    name,
-    stars: h.stars || 0,
-    pricePerNight: price ? Math.round(price) : null,
-    currency: (ctx.cur || 'eur').toUpperCase(),
-    rating: null,
-    lat: h.location && h.location.geo && h.location.geo.lat,
-    lng: h.location && h.location.geo && h.location.geo.lon,
-    photo: null,
-    deeplink: affiliate(name, ctx),
-  };
-}
-
-// deeplink de afiliado para o Hotellook (search) com o teu marker
-function affiliate(name, ctx) {
-  const marker = config.keys.hotelsMarker;
-  if (!marker) return null;
+// deeplink de reserva do hotel concreto (pesquisa por nome + cidade) com marker
+function bookingFor(name, dest, ci, co, pax, marker) {
   const q = new URLSearchParams({
-    destination: ctx.city || name,
-    ...(ctx.checkin ? { checkIn: ctx.checkin } : {}),
-    ...(ctx.checkout ? { checkOut: ctx.checkout } : {}),
-    adults: String(ctx.pax || 1),
-    marker,
+    destination: `${name} ${dest}`.trim(),
+    ...(ci ? { checkIn: ci } : {}), ...(co ? { checkOut: co } : {}),
+    adults: String(pax || 1), ...(marker ? { marker } : {}),
   });
   return `https://search.hotellook.com/?${q.toString()}`;
 }
 
-function mock({ lat, lng }) {
-  return [{
-    id: 'h-1', name: 'Hotel Exemplo', stars: 4, pricePerNight: 80, currency: 'EUR',
-    rating: 8.6, lat, lng, photo: null, deeplink: null,
-  }];
+// recurso: sem coords/OSM, devolve atalhos de pesquisa da cidade
+function searchLinks(dest, ci, co, pax, marker) {
+  const q = new URLSearchParams({
+    destination: dest, ...(ci ? { checkIn: ci } : {}), ...(co ? { checkOut: co } : {}),
+    adults: String(pax || 1), ...(marker ? { marker } : {}),
+  });
+  return [{ provider: 'Hotellook', sub: dest, linkOnly: true, deeplink: `https://search.hotellook.com/?${q.toString()}` }];
 }
 
-module.exports = { searchHotels, hasToken: () => !!config.keys.hotels };
+module.exports = { searchHotels, hasMarker: () => !!config.keys.hotelsMarker };

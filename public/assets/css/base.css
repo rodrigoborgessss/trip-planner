@@ -36,3 +36,20 @@ a{color:var(--accent);text-decoration:none}
   box-shadow:0 6px 18px rgba(0,0,0,.3);transition:transform .1s,background .15s;
 }
 #themeToggle:hover{transform:scale(1.06)}
+#langToggle{
+  position:fixed;left:16px;bottom:66px;z-index:1200;
+  width:42px;height:42px;border-radius:50%;
+  background:var(--panel);border:1px solid var(--line);color:var(--ink);
+  font-family:var(--mono);font-size:13px;font-weight:700;display:grid;place-items:center;
+  box-shadow:0 6px 18px rgba(0,0,0,.3);transition:transform .1s;
+}
+#langToggle:hover{transform:scale(1.06)}
+
+/* bandeiras como imagem (funcionam em todo o lado, incl. Windows) */
+.flagimg{width:22px;height:auto;border-radius:3px;vertical-align:middle;display:inline-block;box-shadow:0 0 0 1px rgba(0,0,0,.18)}
+.flagimg.lg{width:30px}
+.flagimg.hero-flag{width:62px;border-radius:6px}
+
+/* seta de voltar = ícone de mapa */
+.backmap{display:inline-flex;align-items:center;color:var(--muted)}
+.backmap:hover{color:var(--ink)}

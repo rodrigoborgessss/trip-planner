@@ -36,27 +36,39 @@ router.post('/destination', async (req, res) => {
     }
 
     const nights = nightsBetween(dateOut, dateBack);
-    const [fl, ht, act, ex] = await Promise.all([
+    // só voos + extras aqui (rápido). Hotéis/lazer/cultura (OSM, lentos) vão em /places.
+    const [fl, ex] = await Promise.all([
       flights.searchFlights({ fromIata, toIata, departISO: dateOut, returnISO: dateBack, pax }),
-      hotels.searchHotels({ city: name, lat, lng, checkin: dateOut, checkout: dateBack, pax, currency }),
-      activities.searchActivities({ lat, lng }),
       safety.getExtras({ countryCode: cc, country: country || name, lat, lng, dateOut, nationality }),
     ]);
     d.categories.flights = fl;
-    d.categories.hotels = ht;
-    d.categories.leisure = act.leisure;
-    d.categories.culture = act.culture;
     d.extras = ex;
 
-    // estimativa total: voo + hotel * noites
-    const cheapFlight = fl.length ? Math.min(...fl.map((f) => f.price)) : 0;
-    const cheapHotel = ht.length ? Math.min(...ht.map((h) => h.pricePerNight)) : 0;
-    d.metrics.estTotal = Math.round(cheapFlight + cheapHotel * Math.max(nights, 1));
+    // estimativa total: voo (real). Hotéis não têm preço grátis, somam-se só se existirem.
+    const flightPrices = fl.map((f) => f.price).filter((p) => typeof p === 'number');
+    const cheapFlight = flightPrices.length ? Math.min(...flightPrices) : 0;
+    d.metrics.estTotal = cheapFlight || null;
+    d.metrics.estBasis = 'voos';
     d.metrics.currency = (fl[0] && fl[0].currency) || 'EUR';
 
     res.json({ ok: true, destination: d, nights });
   } catch (e) {
     res.status(500).json({ ok: false, error: 'Falha a montar o destino.' });
+  }
+});
+
+// hotéis + lazer + cultura (OpenStreetMap). Chamado À PARTE pela página, depois
+// de ela já ter aberto — para o Overpass lento não segurar o ecrã todo.
+router.post('/places', async (req, res) => {
+  const { name, iata, lat, lng, dateOut, dateBack, pax } = req.body || {};
+  try {
+    // sequencial (não em paralelo): dois pedidos ao mesmo servidor Overpass ao
+    // mesmo tempo competiam e davam timeout. Um de cada vez é mais fiável.
+    const act = await activities.searchActivities({ lat, lng });
+    const ht = await hotels.searchHotels({ city: name, iata, lat, lng, checkin: dateOut, checkout: dateBack, pax });
+    res.json({ ok: true, hotels: ht, leisure: act.leisure, culture: act.culture, nights: nightsBetween(dateOut, dateBack) });
+  } catch (e) {
+    res.json({ ok: true, hotels: [], leisure: [], culture: [], nights: 1 });
   }
 });
 

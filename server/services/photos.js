@@ -1,36 +1,42 @@
-// Foto de cidade. Pexels (com chave) dá fotos de atrações reais; sem chave,
-// Wikipedia a filtrar brasões/bandeiras. Devolve { url, source }.
-//
-// Cache em DISCO (cache/photos.json): cada cidade só é pedida à API uma vez;
-// depois os URLs ficam guardados e sobrevivem a reinícios — sem voltar a
-// chamar o Pexels/Wikipedia. (Guardar os ficheiros de imagem em si fica para
-// depois; por agora guardamos os URLs, que já evita as chamadas repetidas.)
+// Foto de cidade, guardada NO SERVIDOR.
+// 1) resolve o URL (Pexels com chave; senão Wikipedia a filtrar brasões);
+// 2) descarrega a imagem para public/data/photos e passa a servir do disco.
+// Cada cidade é pedida à API uma única vez. Manifesto em cache/photos.json.
 const fs = require('fs');
 const path = require('path');
 const config = require('../config');
 
 const BAD = /coat_of_arms|escudo|bandera|\bflag\b|\bseal\b|logo|wappen|blason|crest|emblem/i;
-const FILE = path.join(__dirname, '..', 'cache', 'photos.json');
+const MANIFEST = path.join(__dirname, '..', 'cache', 'photos.json');
+const PHOTODIR = path.join(__dirname, '..', '..', 'public', 'data', 'photos');
 
-let disk = {};
-try { disk = JSON.parse(fs.readFileSync(FILE, 'utf8')); } catch (e) { disk = {}; }
-let writeTimer = null;
+let manifest = {};
+try { manifest = JSON.parse(fs.readFileSync(MANIFEST, 'utf8')); } catch (e) { manifest = {}; }
+let t = null;
 function persist() {
-  clearTimeout(writeTimer);
-  writeTimer = setTimeout(() => {
-    try { fs.mkdirSync(path.dirname(FILE), { recursive: true }); fs.writeFileSync(FILE, JSON.stringify(disk)); }
-    catch (e) { /* sem persistência, segue só em memória */ }
-  }, 1000);
+  clearTimeout(t);
+  t = setTimeout(() => { try { fs.mkdirSync(path.dirname(MANIFEST), { recursive: true }); fs.writeFileSync(MANIFEST, JSON.stringify(manifest)); } catch (e) {} }, 800);
 }
 
 async function getCityPhoto(city, country) {
   const q = (city || country || '').trim();
   if (!q) return { url: null, source: null };
   const key = `${q}|${country || ''}`;
-  if (key in disk) return disk[key];                 // já resolvido antes: sem chamada à API
 
-  const result = await resolve(q, country);
-  disk[key] = result;
+  // já resolvido? confirma que o ficheiro local ainda existe
+  const cached = manifest[key];
+  if (cached) {
+    if (!cached.url || !cached.local) return cached;
+    if (fs.existsSync(path.join(PHOTODIR, cached.file || ''))) return cached;
+  }
+
+  const { url, source } = await resolve(q, country);
+  let result = { url, source, local: false };
+  if (url) {
+    const saved = await download(url, key);
+    if (saved) result = { url: `/data/photos/${saved}`, source, local: true, file: saved };
+  }
+  manifest[key] = result;
   persist();
   return result;
 }
@@ -44,13 +50,30 @@ async function resolve(q, country) {
   return { url, source: url ? 'wikipedia' : null };
 }
 
+async function download(url, key) {
+  try {
+    const r = await fetch(url);
+    if (!r.ok) return null;
+    const type = r.headers.get('content-type') || '';
+    const ext = type.includes('png') ? 'png' : type.includes('webp') ? 'webp' : 'jpg';
+    const file = slug(key) + '.' + ext;
+    fs.mkdirSync(PHOTODIR, { recursive: true });
+    const buf = Buffer.from(await r.arrayBuffer());
+    fs.writeFileSync(path.join(PHOTODIR, file), buf);
+    return file;
+  } catch (e) { return null; }
+}
+
+function slug(s) {
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80) || 'x';
+}
+
 async function pexels(query) {
   try {
-    const r = await fetch(
-      `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=1&orientation=landscape`,
-      { headers: { Authorization: config.keys.pexels } }
-    );
-    if (!r.ok) { console.error(`[fotos] Pexels ${r.status} para "${query}" — verifica a PEXELS_KEY`); return null; }
+    const r = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=1&orientation=landscape`,
+      { headers: { Authorization: config.keys.pexels } });
+    if (!r.ok) { console.error(`[fotos] Pexels ${r.status} para "${query}"`); return null; }
     const j = await r.json();
     const p = j.photos && j.photos[0];
     return p ? (p.src.landscape || p.src.large || p.src.medium) : null;
@@ -59,10 +82,8 @@ async function pexels(query) {
 
 async function wikipedia(title) {
   try {
-    const r = await fetch(
-      `https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}?redirect=true`,
-      { headers: { Accept: 'application/json' } }
-    );
+    const r = await fetch(`https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}?redirect=true`,
+      { headers: { Accept: 'application/json' } });
     if (!r.ok) return null;
     const j = await r.json();
     const src = (j.originalimage && j.originalimage.source) || (j.thumbnail && j.thumbnail.source) || null;

@@ -3,6 +3,7 @@ import { CONFIG } from '../config.js';
 import { state, saveState } from '../state.js';
 import { currentRadiusKm } from '../map/reach.js';
 import { fmtH, num } from '../lib/format.js';
+import { t } from '../i18n.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -105,11 +106,11 @@ export function applyRangeBounds() {
   if (state.mode === 'radius') {
     $('scaleMin').textContent = num(cfg.min) + ' km';
     $('scaleMax').textContent = num(cfg.max) + ' km';
-    $('modeHint').textContent = 'A zona dourada mostra tudo a este raio em linha reta da tua origem.';
+    $('modeHint').textContent = t('mode.radiusHint');
   } else {
     $('scaleMin').textContent = cfg.min + 'h';
     $('scaleMax').textContent = cfg.max + 'h';
-    $('modeHint').textContent = 'A zona azul estima os países alcançáveis neste tempo de voo direto.';
+    $('modeHint').textContent = t('mode.timeHint');
   }
 }
 
@@ -118,11 +119,11 @@ export function syncReadout() {
     $('critVal').textContent = num(state.radiusKm);
     $('critUnit').textContent = 'km';
     const h = state.radiusKm / CONFIG.flight.cruiseKmh + CONFIG.flight.overheadH;
-    $('critMeta').innerHTML = `≈ <b>${fmtH(h)}</b> de voo<br>direto estimado`;
+    $('critMeta').innerHTML = `≈ <b>${fmtH(h)}</b> ${t('readout.flightEst')}`;
   } else {
     $('critVal').textContent = String(state.timeH).replace('.0', '');
     $('critUnit').textContent = 'h';
-    $('critMeta').innerHTML = `≈ <b>${num(currentRadiusKm())} km</b><br>em voo direto`;
+    $('critMeta').innerHTML = `≈ <b>${num(currentRadiusKm())} km</b><br>${t('readout.inFlight')}`;
   }
 }
 

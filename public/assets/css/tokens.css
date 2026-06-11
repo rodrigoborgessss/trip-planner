@@ -13,6 +13,10 @@
   --teal:#36C7D0;
   --teal-soft:rgba(54,199,208,.15);
 
+  /* superfícies translúcidas (consola/rodapé sobre o mapa) */
+  --glass:rgba(21,34,46,.94);
+  --glass-2:rgba(14,24,32,.6);
+
   /* cor de destaque ativa (muda com o modo raio/tempo via JS) */
   --accent:var(--amber);
   --accent-soft:var(--amber-soft);
@@ -37,4 +41,6 @@
   --amber-soft:rgba(216,134,27,.15);
   --teal:#1E9AA3;
   --teal-soft:rgba(30,154,163,.13);
+  --glass:rgba(255,255,255,.95);
+  --glass-2:rgba(255,255,255,.55);
 }

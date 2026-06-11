@@ -14,19 +14,20 @@
 </head>
 <body>
   <div class="bar">
-    <a href="search.html">← Mapa</a>
-    <h1>Destinos</h1>
+    <a href="search.html" class="backmap" title="Mapa" aria-label="Mapa"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/></svg></a>
+    <h1 data-i18n="r.title">Destinos</h1>
     <span class="count" id="count"></span>
     <div class="sort" id="sort">
-      <button data-sort="distance">Distância</button>
-      <button data-sort="time">Tempo de voo</button>
-      <button data-sort="name">Nome</button>
+      <button data-sort="distance" data-i18n="sort.distance">Distância</button>
+      <button data-sort="time" data-i18n="sort.time">Tempo de voo</button>
+      <button data-sort="name" data-i18n="sort.name">Nome</button>
     </div>
   </div>
   <div class="wrap">
     <div id="content"><p class="state">A procurar destinos ao teu alcance…</p></div>
   </div>
   <script type="module" src="assets/js/pages/results.js"></script>
+  <script type="module" src="assets/js/i18n.js"></script>
   <script type="module" src="assets/js/theme.js"></script>
 </body>
 </html>

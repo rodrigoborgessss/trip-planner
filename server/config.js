@@ -13,5 +13,6 @@ module.exports = {
     safety: process.env.SAFETY_TOKEN || '',
     pexels: process.env.PEXELS_KEY || '',
     hotelsMarker: process.env.HOTELS_MARKER || '',
+    geoapify: process.env.GEOAPIFY_KEY || '',
   },
 };

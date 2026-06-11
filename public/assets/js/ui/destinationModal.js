@@ -4,6 +4,7 @@
 import { fmtKm, fmtH } from '../lib/format.js';
 import { estimatePoint } from '../map/reach.js';
 import { state, saveState } from '../state.js';
+import { flagImg } from '../lib/flag.js';
 
 function flagEmoji(iso2) {
   if (!iso2 || iso2.length !== 2) return '📍';
@@ -30,7 +31,7 @@ export function initModal(h) {
 function show(sel, est) {
   state.selected = sel;
   saveState();
-  $('dcFlag').textContent = flagEmoji(sel.cc);
+  $('dcFlag').innerHTML = flagImg(sel.cc, 'lg');
   $('dcName').textContent = sel.name;
   $('dcSub').textContent = sel.sub;
   $('dcDist').textContent = fmtKm(est.km);
@@ -46,7 +47,7 @@ export function openCountry(feature, cc) {
   let c;
   try { c = turf.centroid(feature).geometry.coordinates; } catch (e) { return; }
   const name = feature.properties.name || feature.id;
-  const code = (cc || feature.properties.iso_a2 || '').toUpperCase();
+  const code = (cc || (feature.properties && feature.properties.cc) || '').toUpperCase();
   show(
     { kind: 'country', name, country: name, cc: code, lat: c[1], lng: c[0], continent: '', sub: `desde ${airport()}` },
     estimatePoint(c[1], c[0])

@@ -24,7 +24,7 @@ header.topbar{
 /* ---------- consola ---------- */
 .console{
   position:absolute;top:14px;left:14px;bottom:14px;width:332px;
-  background:rgba(21,34,46,.94);backdrop-filter:blur(10px);
+  background:var(--glass);backdrop-filter:blur(10px);
   border:1px solid var(--line);border-radius:16px;display:flex;flex-direction:column;
   z-index:500;box-shadow:0 18px 50px rgba(0,0,0,.45);overflow:hidden;
 }
@@ -49,7 +49,7 @@ select.input{appearance:none;background-image:linear-gradient(45deg,transparent 
 .seg button.on{background:var(--accent);color:#0E1820;font-weight:600}
 
 .readout{display:flex;align-items:baseline;justify-content:space-between;margin:14px 0 4px}
-.readout .val{font-family:var(--mono);font-size:30px;font-weight:700;line-height:1}
+.readout .val{font-family:var(--mono);font-size:30px;font-weight:700;line-height:1;color:var(--ink)}
 .readout .val .unit{font-size:14px;color:var(--accent);margin-left:3px}
 .readout .meta{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:right;line-height:1.5}
 .readout .meta b{color:var(--ink);font-weight:700}
@@ -84,7 +84,7 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
 #critControls.off{opacity:.4;pointer-events:none}
 
 /* footer da consola: ações */
-.console .foot{padding:14px 18px;border-top:1px solid var(--line);background:rgba(14,24,32,.6)}
+.console .foot{padding:14px 18px;border-top:1px solid var(--line);background:var(--glass-2)}
 .reach-stat{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:11px;font-size:12px;color:var(--muted)}
 .reach-stat b{font-family:var(--mono);font-size:18px;color:var(--ink);font-weight:700}
 .actions{display:flex;flex-direction:column;gap:9px}

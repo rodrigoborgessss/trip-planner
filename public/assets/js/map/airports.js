@@ -39,6 +39,27 @@ export function getMainAirportByCC(cc) {
   return (cc && byCC[cc.toUpperCase()]) || null;
 }
 
+// aeroporto do país MAIS PRÓXIMO de um ponto (lat,lng) — essencial para ilhas:
+// clicar na Madeira dá Funchal, não Lisboa; Tenerife dá Tenerife, não Barcelona.
+export function getNearestAirportByCC(cc, lat, lng) {
+  if (!cc || typeof lat !== 'number') return getMainAirportByCC(cc);
+  const c = cc.toUpperCase();
+  let best = null, bestD = Infinity;
+  for (const a of all) {
+    if (a.cc !== c) continue;
+    const d = hav(lat, lng, a.lat, a.lng);
+    if (d < bestD) { bestD = d; best = a; }
+  }
+  return best || getMainAirportByCC(cc);
+}
+
+function hav(la1, lo1, la2, lo2) {
+  const R = 6371, r = (x) => x * Math.PI / 180;
+  const dLa = r(la2 - la1), dLo = r(lo2 - lo1);
+  const x = Math.sin(dLa / 2) ** 2 + Math.cos(r(la1)) * Math.cos(r(la2)) * Math.sin(dLo / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(x));
+}
+
 export function refresh() {
   if (!map || !all.length) return;
   group.clearLayers();
