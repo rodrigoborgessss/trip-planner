@@ -39,7 +39,7 @@ router.post('/destination', async (req, res) => {
     // só voos + extras aqui (rápido). Hotéis/lazer/cultura (OSM, lentos) vão em /places.
     const [fl, ex] = await Promise.all([
       flights.searchFlights({ fromIata, toIata, departISO: dateOut, returnISO: dateBack, pax }),
-      safety.getExtras({ countryCode: cc, country: country || name, lat, lng, dateOut, nationality }),
+      safety.getExtras({ countryCode: cc, country: country || name, city: name, lat, lng, dateOut, nationality }),
     ]);
     d.categories.flights = fl;
     d.extras = ex;

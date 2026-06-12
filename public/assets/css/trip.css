@@ -55,3 +55,45 @@ a{color:var(--accent)}
   .block,.day,.line,.act{break-inside:avoid}
   a[href]::after{content:''}
 }
+
+/* botão de tema + rota do dia */
+.btn-theme{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:9px;padding:7px 12px;cursor:pointer;font-size:15px;line-height:1;margin-left:auto;margin-right:8px}
+.day-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.route{font-size:12px;font-weight:600;font-family:'Space Mono',monospace;text-decoration:none;border:1px solid var(--line);padding:3px 9px;border-radius:7px}
+
+/* tema escuro */
+body.dark{--ink:#e7edf3;--muted:#8a99a8;--line:#243240;--paper:#151b22;background:#0f141a}
+body.dark .trip-actions{background:#151b22;border-color:#243240}
+body.dark .cover{background:linear-gradient(135deg,#1b222b,#241f17)}
+body.dark .cover-meta span{background:#1b222b}
+
+/* impressão: forçar claro mesmo em tema escuro */
+@media print{
+  body,body.dark{--ink:#1a2330;--muted:#6b7886;--line:#e6e9ee;--paper:#fff;background:#fff}
+  body.dark .cover{background:linear-gradient(135deg,#fff,#fbf2df)}
+  body.dark .cover-meta span{background:#fff}
+  .btn-theme{display:none}
+}
+
+/* edição dos dias */
+.edit-hint{font-family:'Montserrat',sans-serif;text-transform:none;letter-spacing:0;font-weight:400;color:var(--muted);font-size:11px;margin-left:6px}
+.act.edit{display:flex;align-items:center;gap:10px}
+.act.edit .grip{cursor:grab;color:var(--muted);flex:0 0 auto;display:flex}
+.act.edit .grip svg{width:18px;height:18px}
+.act-main{flex:1;min-width:0;display:flex;flex-direction:column;text-decoration:none;color:inherit;gap:2px}
+.act-main b{font-weight:600;font-size:14px}
+.act-main .muted{font-family:'Space Mono',monospace;font-size:11px}
+.move-sel{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;padding:5px 6px;font-size:12px;font-family:'Montserrat',sans-serif;flex:0 0 auto}
+.del{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:8px;padding:5px 7px;cursor:pointer;display:flex;flex:0 0 auto}
+.del svg{width:16px;height:16px}
+.del:hover{color:#d6453c;border-color:#d6453c}
+.day-list.over{outline:2px dashed var(--accent);outline-offset:3px;border-radius:10px}
+.act.dragging{opacity:.4}
+.add-sel{margin-top:8px;border:1px dashed var(--line);background:transparent;color:var(--muted);border-radius:9px;padding:9px 11px;font-size:13px;font-family:'Montserrat',sans-serif;width:100%;cursor:pointer}
+.route svg{width:14px;height:14px;vertical-align:-3px}
+
+@media print{
+  .no-print{display:none !important}
+  .act.edit{gap:0;padding:9px 0;border:0;border-bottom:1px solid var(--line)}
+  .act.edit:last-child{border-bottom:0}
+}

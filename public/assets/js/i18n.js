@@ -46,7 +46,7 @@ const DICT = {
     'trip.flight': 'Voo', 'trip.hotel': 'Estadia', 'trip.transport': 'Como te deslocares',
     'trip.day': 'Dia', 'trip.budget': 'Orçamento', 'trip.book': 'Reservar', 'trip.from': 'De',
     'trip.nights': 'noites', 'trip.travellers': 'viajantes', 'trip.noflight': 'Escolhe um aeroporto para incluir voo.',
-    'trip.intro': 'Plano sugerido com base nas tuas datas e orçamento. Os preços de voo são reais; hotel e atividades confirmas no parceiro.',
+    'trip.intro': 'Plano sugerido com base nas tuas datas e orçamento. Os preços de voo são reais; hotel e atividades confirmas no parceiro.', 'trip.pick': 'Escolhe o que entra no plano.', 'trip.route': 'Rota no Maps', 'trip.theme': 'Tema', 'trip.add': 'Adicionar', 'trip.moveday': 'Mudar de dia', 'trip.remove': 'Remover', 'trip.edithint': '(arrasta ou usa o menu para reorganizar)',
   },
   en: {
     'console': 'console',
@@ -93,7 +93,7 @@ const DICT = {
     'trip.flight': 'Flight', 'trip.hotel': 'Stay', 'trip.transport': 'Getting around',
     'trip.day': 'Day', 'trip.budget': 'Budget', 'trip.book': 'Book', 'trip.from': 'From',
     'trip.nights': 'nights', 'trip.travellers': 'travellers', 'trip.noflight': 'Pick an airport to include a flight.',
-    'trip.intro': 'Suggested plan based on your dates and budget. Flight prices are real; confirm hotel and activities with the partner.',
+    'trip.intro': 'Suggested plan based on your dates and budget. Flight prices are real; confirm hotel and activities with the partner.', 'trip.pick': 'Choose what goes into the plan.', 'trip.route': 'Route in Maps', 'trip.theme': 'Theme', 'trip.add': 'Add', 'trip.moveday': 'Move day', 'trip.remove': 'Remove', 'trip.edithint': '(drag or use the menu to reorganise)',
   },
 };
 

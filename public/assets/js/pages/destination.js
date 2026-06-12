@@ -107,6 +107,16 @@ function render(d, nights) {
   fill(tpl.querySelector('[data-sec="leisure"]'), loadingHTML());
   fill(tpl.querySelector('[data-sec="culture"]'), loadingHTML());
   fill(tpl.querySelector('[data-sec="extras"]'), extrasHTML(d.extras));
+
+  // se vier do modal com uma categoria escolhida, abre nessa aba
+  try {
+    const want = sessionStorage.getItem('tp_tab');
+    if (want) {
+      sessionStorage.removeItem('tp_tab');
+      const b = tabBar.querySelector(`button[data-tab="${want}"]`);
+      if (b) b.click();
+    }
+  } catch (e) {}
   tpl.querySelector('[data-sec="flights"]').classList.add('on');
 
   root.innerHTML = '';
@@ -173,21 +183,51 @@ function interleave(a, b) {
   for (let i = 0; i < n; i++) { if (a[i]) out.push(a[i]); if (b[i]) out.push(b[i]); }
   return out;
 }
+function havKm(a1, o1, a2, o2) {
+  if (typeof a2 !== 'number' || typeof a1 !== 'number') return 1e9;
+  const R = 6371, r = (x) => x * Math.PI / 180;
+  const dA = r(a2 - a1), dO = r(o2 - o1);
+  const x = Math.sin(dA / 2) ** 2 + Math.cos(r(a1)) * Math.cos(r(a2)) * Math.sin(dO / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(x));
+}
+// ordena por vizinho mais próximo a partir de um ponto de partida
+function nearestNeighbour(items, start) {
+  const rest = items.slice(); const route = []; let cur = start;
+  while (rest.length) {
+    let bi = 0, bd = Infinity;
+    for (let i = 0; i < rest.length; i++) {
+      const dd = havKm(cur.lat, cur.lng, rest[i].lat, rest[i].lng);
+      if (dd < bd) { bd = dd; bi = i; }
+    }
+    cur = rest[bi]; route.push(cur); rest.splice(bi, 1);
+  }
+  return route;
+}
 
-function buildTripPlan() {
+function buildTripPlan(choices) {
+  choices = choices || {};
   const d = currentDest || {};
   const budget = Number(state.budget) || 0;
   const flights = (currentFlights || []).slice().sort((x, y) => (x.price || 1e9) - (y.price || 1e9));
-  const flight = flights.find((f) => !budget || (f.price || 0) <= budget) || flights[0] || null;
-  const hotel = (currentPlaces.hotels || []).find((h) => !h.linkOnly) || (currentPlaces.hotels || [])[0] || null;
+  const flight = ('flight' in choices) ? choices.flight : (flights.find((f) => !budget || (f.price || 0) <= budget) || flights[0] || null);
+  const hotel = ('hotel' in choices) ? choices.hotel : ((currentPlaces.hotels || []).find((h) => !h.linkOnly) || (currentPlaces.hotels || [])[0] || null);
+  const transportSrc = choices.transport || transportRows(sel);
 
   const nights = nightsBetween(state.dateOut, state.dateBack);
   const days = Math.max(1, nights);
   const pool = interleave(currentPlaces.culture || [], currentPlaces.leisure || []);
   const perDay = Math.max(2, Math.min(4, Math.ceil(pool.length / days) || 2));
+  // pegar nos mais famosos (já vêm ordenados) e ordená-los por PROXIMIDADE, para
+  // cada dia ficar com pontos perto uns dos outros (não um a norte e outro a sul)
+  const picked = pool.slice(0, days * perDay);
+  const withXY = picked.filter((p) => typeof p.lat === 'number');
+  const noXY = picked.filter((p) => typeof p.lat !== 'number');
+  const ordered = nearestNeighbour(withXY, { lat: d.lat, lng: d.lng }).concat(noXY);
   const dayPlans = [];
   for (let i = 0, idx = 0; i < days; i++, idx += perDay) {
-    dayPlans.push((pool.slice(idx, idx + perDay)).map((p) => ({ name: p.name, category: p.category, link: mapsLink(p) })));
+    dayPlans.push(ordered.slice(idx, idx + perDay).map((p) => ({
+      name: p.name, category: p.category, link: mapsLink(p), lat: p.lat, lng: p.lng,
+    })));
   }
 
   return {
@@ -196,16 +236,65 @@ function buildTripPlan() {
     dateOut: state.dateOut, dateBack: state.dateBack, pax: state.pax || 1, nights,
     budget, currency: (d.metrics && d.metrics.currency) || 'EUR',
     flight, hotel,
-    transport: transportRows(sel).map(([title, sub, url]) => ({ title, sub, url })),
+    transport: transportSrc.map(([title, sub, url]) => ({ title, sub, url })),
     days: dayPlans,
+    // todos os locais disponíveis (para o utilizador adicionar/trocar na viagem)
+    pool: pool.slice(0, 40).map((p) => ({ name: p.name, category: p.category, link: mapsLink(p), lat: p.lat, lng: p.lng })),
   };
 }
 
 function onCreateTrip() {
-  try {
-    sessionStorage.setItem('tp_plan', JSON.stringify(buildTripPlan()));
-    location.href = 'trip.html';
-  } catch (e) { console.error('plano:', e); }
+  const flights = (currentFlights || []).slice().sort((a, b) => (a.price || 1e9) - (b.price || 1e9));
+  const hotels = (currentPlaces.hotels || []).filter((h) => !h.linkOnly);
+  const trows = transportRows(sel);
+  const budget = Number(state.budget) || 0;
+
+  const flightOpts = flights.length
+    ? flights.map((f, i) => `<option value="${i}">${esc(f.airline)} · ${f.price} ${f.currency} · ${esc(f.from)}→${esc(f.to)}</option>`).join('')
+    : `<option value="">${t('trip.noflight')}</option>`;
+  const hotelOpts = hotels.length
+    ? hotels.map((h, i) => `<option value="${i}">${esc(h.name)}${h.stars ? ' · ' + h.stars + '★' : ''}</option>`).join('')
+    : `<option value="">—</option>`;
+  const transportChecks = trows.map((row, i) =>
+    `<label class="pm-check"><input type="checkbox" value="${i}" checked> <span>${row[3]} ${esc(row[0])}</span></label>`).join('');
+
+  const ov = document.createElement('div');
+  ov.className = 'plan-modal';
+  ov.innerHTML = `
+    <div class="pm-box">
+      <h3>✨ ${t('trip.create')}</h3>
+      <p class="pm-hint">${t('trip.pick')}</p>
+      <label class="pm-l">${t('trip.flight')}</label>
+      <select class="pm-sel" id="pmFlight">${flightOpts}</select>
+      <label class="pm-l">${t('trip.hotel')}</label>
+      <select class="pm-sel" id="pmHotel">${hotelOpts}</select>
+      <label class="pm-l">${t('trip.transport')}</label>
+      <div class="pm-checks">${transportChecks}</div>
+      <div class="pm-actions">
+        <button class="pm-cancel" id="pmCancel">${t('trip.back')}</button>
+        <button class="pm-go" id="pmGo">${t('trip.create')} →</button>
+      </div>
+    </div>`;
+  document.body.appendChild(ov);
+
+  const def = flights.findIndex((f) => !budget || (f.price || 0) <= budget);
+  if (def >= 0) ov.querySelector('#pmFlight').value = String(def);
+
+  const close = () => ov.remove();
+  ov.querySelector('#pmCancel').onclick = close;
+  ov.onclick = (e) => { if (e.target === ov) close(); };
+  ov.querySelector('#pmGo').onclick = () => {
+    const fi = ov.querySelector('#pmFlight').value;
+    const hi = ov.querySelector('#pmHotel').value;
+    const chosenT = [...ov.querySelectorAll('.pm-checks input:checked')].map((c) => trows[+c.value]);
+    const plan = buildTripPlan({
+      flight: fi !== '' ? flights[+fi] : null,
+      hotel: hi !== '' ? hotels[+hi] : null,
+      transport: chosenT.length ? chosenT : trows,
+    });
+    try { sessionStorage.setItem('tp_plan', JSON.stringify(plan)); location.href = 'trip.html'; }
+    catch (e) { console.error('plano:', e); }
+  };
 }
 
 // hotéis/lazer/cultura (OSM) — pedidos depois da página abrir
@@ -257,7 +346,7 @@ function hotelsHTML(list, nights) {
   if (!list.length) return empty('hotéis', 'OpenStreetMap + parceiros');
   return `<div class="pcards">${list.map((h) => h.linkOnly
     ? `<a class="pcard" href="${h.deeplink}" target="_blank" rel="noopener"><div class="pcap"><h4>${h.provider}</h4><div class="meta">${t('ht.searchIn')} ${h.sub} · ${t('ht.see')}</div></div></a>`
-    : `<a class="pcard" data-pname="${esc(h.name)}" data-pctx="${esc(sel && sel.name || '')}" href="${h.deeplink}" target="_blank" rel="noopener"><div class="pcap"><h4>${h.name}</h4><div class="hstars">${starHTML(h.stars)}</div></div></a>`
+    : `<a class="pcard" data-pname="${esc(h.name)}" data-pctx="${esc(sel && sel.name || '')}" href="${h.deeplink}" target="_blank" rel="noopener"><div class="pcap"><h4>${h.name}</h4>${h.stars ? `<div class="hstars">${starHTML(h.stars)}</div>` : ''}</div></a>`
   ).join('')}</div>`;
 }
 
@@ -286,20 +375,28 @@ function simpleHTML(list, label, src) {
 }
 
 // Deslocações: links prontos a usar (sem API/token). Levam o nome da cidade.
+const TR_ICON = {
+  plane: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.2 8.5 4 7l-1 2 5 3-2 3H4l-1 1.5L6 18l1.5 3L9 20v-3l3-2 3 5 2-1-1.5-6.2L21 9c.8-.8 1-1.8.5-2.3S19.8 6 19 6.8z"/></svg>',
+  car: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17H3v-5l2-5h12l2 5v5h-2"/><path d="M5 12h14"/><circle cx="7.5" cy="17" r="1.6"/><circle cx="16.5" cy="17" r="1.6"/></svg>',
+  bus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="12" rx="2"/><path d="M4 11h16"/><path d="M7 20v-1M17 20v-1"/></svg>',
+  taxi: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17H3v-5l2-5h12l2 5v5h-2"/><path d="M5 12h14"/><circle cx="7.5" cy="17" r="1.6"/><circle cx="16.5" cy="17" r="1.6"/><path d="M9.5 7V4.5h5V7"/></svg>',
+};
+
 function transportRows(s) {
   const city = encodeURIComponent(s.name || '');
   const ll = (typeof s.lat === 'number') ? `@${s.lat},${s.lng},13z` : '';
   return [
-    s.iata ? [t('tr.airport'), 'Rome2Rio', `https://www.rome2rio.com/map/${s.iata}-Airport/${city}`] : null,
-    [t('tr.car'), 'Google Maps', `https://www.google.com/maps/search/aluguer+de+carros/${ll}`],
-    [t('tr.transit'), 'Google Maps', `https://www.google.com/maps/search/public+transport/${ll}`],
-    [t('tr.taxi'), 'Rome2Rio', `https://www.rome2rio.com/s/${city}`],
+    s.iata ? [t('tr.airport'), 'Rome2Rio', `https://www.rome2rio.com/map/${s.iata}-Airport/${city}`, TR_ICON.plane] : null,
+    [t('tr.car'), 'Google Maps', `https://www.google.com/maps/search/aluguer+de+carros/${ll}`, TR_ICON.car],
+    [t('tr.transit'), 'Google Maps', `https://www.google.com/maps/search/public+transport/${ll}`, TR_ICON.bus],
+    [t('tr.taxi'), 'Rome2Rio', `https://www.rome2rio.com/s/${city}`, TR_ICON.taxi],
   ].filter(Boolean);
 }
 
 function transportHTML(s) {
-  return `<div class="cards">${transportRows(s).map(([title, sub, url]) => `
-    <div class="card">
+  return `<div class="cards">${transportRows(s).map(([title, sub, url, icon]) => `
+    <div class="card tcard">
+      <div class="ticon">${icon}</div>
       <div class="main"><h4>${title}</h4><div class="meta">${sub}</div></div>
       <div class="price"><a href="${url}" target="_blank" rel="noopener">${t('ht.see')}</a></div>
     </div>`).join('')}</div>`;

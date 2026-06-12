@@ -26,6 +26,15 @@ export function initModal(h) {
     if (handlers.onSetDeparture && state.selected) handlers.onSetDeparture(state.selected);
     close();
   };
+  // botões de categoria: abrem a página do destino já na aba escolhida
+  const catTabs = ['flights', 'hotels', 'leisure', 'culture', 'extras'];
+  document.querySelectorAll('.destcard .cat').forEach((btn, i) => {
+    btn.onclick = () => {
+      saveState();
+      try { sessionStorage.setItem('tp_tab', catTabs[i] || 'flights'); } catch (e) {}
+      location.href = 'destination.html';
+    };
+  });
 }
 
 function show(sel, est) {

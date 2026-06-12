@@ -10,11 +10,11 @@ const cache = require('../cache/store');
 let VISA = {};
 try { VISA = require('../data/visa.json'); } catch (e) { VISA = {}; }
 
-async function getExtras({ countryCode, country, lat, lng, dateOut, nationality }) {
+async function getExtras({ countryCode, country, city, lat, lng, dateOut, nationality }) {
   const [safety, weather, news] = await Promise.all([
     countryCode ? getSafety(countryCode) : null,
     typeof lat === 'number' ? getWeather(lat, lng, dateOut) : null,
-    country ? getNews(country) : [],
+    (city || country) ? getNews(city, country) : [],
   ]);
   return {
     safety,
@@ -28,24 +28,31 @@ async function getExtras({ countryCode, country, lat, lng, dateOut, nationality 
   };
 }
 
-// ---- notícias (GDELT, gratuito) ----
-async function getNews(country) {
-  return cache.remember(`news:${country}`, 180, async () => {
-    try {
-      const q = encodeURIComponent(`"${country}" (sourcelang:eng OR sourcelang:por)`);
-      const u = `https://api.gdeltproject.org/api/v2/doc/doc?query=${q}&mode=ArtList&maxrecords=6&sort=DateDesc&format=json`;
-      const r = await fetch(u);
-      if (!r.ok) return [];
-      const j = await r.json();
-      return (j.articles || []).slice(0, 6).map((a) => ({
-        title: a.title,
-        url: a.url,
-        source: a.domain || '',
-        publishedISO: gdeltDate(a.seendate),
-        sentiment: null,
-      }));
-    } catch (e) { return []; }
+// ---- notícias (GDELT, gratuito) — pela CIDADE, recorrendo ao país se faltar ----
+async function getNews(city, country) {
+  const key = city || country;
+  return cache.remember(`news:${key}`, 180, async () => {
+    let arts = city ? await gdelt(city) : [];
+    if (arts.length < 3 && country && country !== city) {
+      const seen = new Set(arts.map((a) => a.url));
+      arts = arts.concat((await gdelt(country)).filter((a) => !seen.has(a.url)));
+    }
+    return arts.slice(0, 6);
   });
+}
+
+async function gdelt(term) {
+  try {
+    const q = encodeURIComponent(`"${term}" (sourcelang:eng OR sourcelang:por)`);
+    const u = `https://api.gdeltproject.org/api/v2/doc/doc?query=${q}&mode=ArtList&maxrecords=8&sort=DateDesc&format=json`;
+    const r = await fetch(u);
+    if (!r.ok) return [];
+    const j = await r.json();
+    return (j.articles || []).map((a) => ({
+      title: a.title, url: a.url, source: a.domain || '',
+      publishedISO: gdeltDate(a.seendate), sentiment: null,
+    }));
+  } catch (e) { return []; }
 }
 function gdeltDate(s) {
   if (!s || s.length < 15) return null;

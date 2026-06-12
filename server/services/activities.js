@@ -38,12 +38,13 @@ out center 150;`;
       if (!name || seen.has(name)) continue;
       seen.add(name);
       const cult = isCulture(tags);
+      const dist = hav(lat, lng, it.lat, it.lng);
       const entry = {
         name,
         category: String(tags.tourism || tags.historic || tags.leisure || 'ponto de interesse').replace(/_/g, ' '),
         lat: it.lat,
         lng: it.lng,
-        score: popularity(tags),
+        score: popularity(tags) + centrality(dist),
         fame: 0,
         wikidata: tags.wikidata || null,
         commons: /^File:/i.test(tags.wikimedia_commons || '') ? tags.wikimedia_commons.replace(/^File:/i, '') : null,
@@ -69,6 +70,16 @@ const TYPE_WEIGHT = {
   museum: 3, gallery: 3, attraction: 2, zoo: 2, theme_park: 2, aquarium: 2,
   park: 2, garden: 2, nature_reserve: 2, artwork: 1, viewpoint: 0,
 };
+// sítios mais centrais ganham pontos (proxy de "principal/famoso" sem custo)
+function centrality(distKm) { return Math.max(0, 5 - distKm / 1.5); }
+function hav(la1, lo1, la2, lo2) {
+  if (typeof la2 !== 'number') return 99;
+  const R = 6371, r = (x) => x * Math.PI / 180;
+  const dLa = r(la2 - la1), dLo = r(lo2 - lo1);
+  const x = Math.sin(dLa / 2) ** 2 + Math.cos(r(la1)) * Math.cos(r(la2)) * Math.sin(dLo / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(x));
+}
+
 function popularity(t) {
   const ty = t.tourism || t.leisure || (t.historic ? 'historic' : '');
   const tw = TYPE_WEIGHT[ty] != null ? TYPE_WEIGHT[ty] : (t.historic ? 2 : 0);
